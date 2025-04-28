@@ -1,26 +1,36 @@
 <script lang="ts">
-import { Schema, z, ZodObject, ZodTypeAny } from "zod"
+import { z } from "zod"
 import ZxInput from "./ZxInput.svelte";
+import { css, keyframes } from "@emotion/css"
 
-let { schema, styles } = $props()
-let data: z.infer<typeof schema> = $state();
+let { schema } = $props()
 
-function buildForm<T extends ZodTypeAny>(s: T, style?: any) {
-    if (s instanceof ZodObject) {
-        for (const [key, value] of Object.entries(s.shape)) {
-            data = value
-        }
-    }
+let styles = css({
+    display: "flex",
+    flexDirection: "column",
+    gap: "1em",
+})
+
+let options = {
+    errorOnMoveOut: true,
+    title: "Form"
 }
 
-function onsubmit() {
+let data: any = $state({})
 
+function onsubmit(event) {
+    event.preventDefault()
+
+    console.log("Foram submission!")
+    console.log($state.snapshot(data))
 }
 
 </script>
 
-<form {onsubmit}>
-    {#each  Object.entries(schema.shape) as input}
-    <ZxInput {input} bind:value={data}></ZxInput>
+<form {onsubmit} class={styles}>
+    <h3>{options.title}</h3>
+    {#each Object.entries(schema.shape) as input}
+    <ZxInput {input} bind:data={data}></ZxInput>
     {/each}
+    <input type="submit" value="Submit">
 </form>

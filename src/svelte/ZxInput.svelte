@@ -1,22 +1,24 @@
 <script lang="ts">
+    import { uppercaseFirstLetter } from "@/lib/misc";
     import { z, ZodBoolean, ZodEnum, ZodNumber, ZodString } from "zod";
 
     let { input, data = $bindable() } = $props();
-    let [key, schema] = input;
+    let [key, schema]: [string, z.ZodTypeAny] = input;
 
-    let value: z.infer<typeof schema> = schema._def.defaultValue()
+    let placeholder = uppercaseFirstLetter(key)
+
 </script>
 
-{#if input.schema instanceof ZodString}
-    <input type="text" />
-{:else if input.schema instanceof ZodBoolean}
-    <input type="checkbox" />
-{:else if input.schema instanceof ZodNumber}
-    <input type="number" />
-{:else if input.schema instanceof ZodEnum}
+{#if schema instanceof ZodString}
+    <input type="text" {placeholder} bind:value={data[key]}/>
+{:else if schema instanceof ZodBoolean}
+    <input type="checkbox"  placeholder={key}/>
+{:else if schema instanceof ZodNumber}
+    <input type="number"  placeholder={key}/>
+{:else if schema instanceof ZodEnum}
     <select>
-        {#each input.schema.value as option}
-            <option value=""></option>
+        {#each schema.options as option}
+            <option value="" placeholder={key}></option>
         {/each}
     </select>
 {/if}
