@@ -5,6 +5,7 @@ import { uppercaseFirstLetter } from '@/lib/misc';
 const schema = z.object({
   name: z.string(),
   email: z.string().email(),
+  age: z.number().lte(6),
   password: z.string().min(8)
 })
 
