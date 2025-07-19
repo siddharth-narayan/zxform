@@ -1,81 +1,75 @@
 <script lang="ts">
-  import Input from "@/lib/components/ui/input/input.svelte";
-    import { defaultStyle } from "@/lib/defaults";
-    import { uppercaseFirstLetter } from "@/lib/misc";
-    import { type InputProps } from "@/lib/types";
-    import { css } from "@emotion/css";
-    import { z, ZodBoolean, ZodEnum, ZodNumber, ZodString } from "zod";
+  import { Input } from "@/lib/components/ui/input";
+  import { Label } from "@/lib/components/ui/label";
+  import { uppercaseFirstLetter } from "@/lib/misc";
+  import { type InputProps } from "@/lib/types";
 
-    let { input, data = $bindable(), styles, options }: InputProps = $props();
-    let [key, schema] = input;
+  import { uuidv4, z, ZodBoolean, ZodEnum, ZodNumber, ZodString } from "zod";
 
-    let placeholder = uppercaseFirstLetter(key);
-    let edited = $state(false);
+  let { input, data = $bindable() }: InputProps = $props();
+  let [key, schema] = input;
 
-    function onchange() {
-        edited = true;
+  let placeholder = uppercaseFirstLetter(key);
+  let edited = $state(false);
 
-        validate()        
+  function onchange() {
+    edited = true;
+
+    validate();
+  }
+
+  let id = uuidv4();
+
+  function onkeypress(e) {
+    if (isNaN(e.key)) {
+      e.preventDefault();
     }
+  }
 
-    function validate() {
-        let result = schema.safeParse(data[key]);
-        console.log(result);
-        if (!result.success) {
-            console.log(result.error);
+  function validate() {
+    let result = schema.safeParse(data[key]);
+    console.log(result);
+    // if (!result.success) {
+    //   console.log(result.error);
 
-            if (options.errorOnMoveOut) {
-
-            }
-
-        } else {
-            if (options.errorOnMoveOut) {
-            };
-        }
-
-    }
+    //   if (options.errorOnMoveOut) {
+    //   }
+    // } else {
+    //   if (options.errorOnMoveOut) {
+    //   }
+    // }
+  }
 </script>
 
-<form>
-
-    
-    <label>{placeholder + ":"}
-
-        {#if schema instanceof ZodString}
-            <Input
-                type="text"
-                {onchange}
-                {placeholder}
-                bind:value={data[key]}
-            />
-        {:else if schema instanceof ZodBoolean}
-            <input
-                type="checkbox"
-                onchange={() => {
-                    onchange();
-                    console.log(data[key]);
-                }}
-                {placeholder}
-                bind:checked={data[key]}
-            />
-        {:else if schema instanceof ZodNumber}
-            <input
-                type="number"
-                {onchange}
-                onkeypress={(e) => {
-                    if (isNaN(e.key)) {
-                        e.preventDefault();
-                    }
-                }}
-                {placeholder}
-                bind:value={data[key]}
-            />
-        {:else if schema instanceof ZodEnum}
-            <select>
-                {#each schema.options as option}
-                    <option value="" placeholder={key}></option>
-                {/each}
-            </select>
-        {/if}
-    </label>
-</form>
+<div class="grid gap-2">
+  {#if schema instanceof ZodString}
+    <Label for="id-{id}">{placeholder}</Label>
+    <Input
+      id="id-{id}"
+      type="text"
+      {onchange}
+      {placeholder}
+      bind:value={data[key]}
+    />
+  <!-- {:else if schema instanceof ZodBoolean}
+    <Label for="id-{id}">{placeholder}</Label>
+    <Input
+      id="id-{id}"
+      type="checkbox"
+      {onchange}
+      {onkeypress}
+      {placeholder}
+      
+    /> -->
+    <!-- {:else if schema instanceof ZodNumber}
+    <Label for="email-{id}">{placeholder + ":"}</Label>
+    <Input type="number" {onchange} {placeholder} bind:value={data[key]} />
+  {:else if schema instanceof ZodEnum}
+    <Label for="email-{id}">{placeholder + ":"}</Label>
+    <select>
+      {#each schema.options as option}
+        <option value="" placeholder={key}></option>
+      {/each}
+    </select> -->
+  {/if}
+</div>

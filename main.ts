@@ -6,12 +6,12 @@ import ZxForm from '@/svelte/ZxForm.svelte';
 const schema = z.object({
   name: z.string(),
   email: z.string().email(),
-  age: z.number().lte(6),
+  // age: z.number().lte(6),
   password: z.string().min(8),
-  isCool: z.boolean().refine(val => val),
+  // isCool: z.boolean().refine(val => val),
 })
 
-const app = mount(ZxForm, { props: { schema }, target: document.getElementById("app")! });
+const app = mount(ZxForm, { props: { schema, options: { description: "A simple form"} }, target: document.getElementById("app")! });
 
 export default app;
 
