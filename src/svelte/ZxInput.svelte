@@ -1,19 +1,13 @@
 <script lang="ts">
+  import Input from "@/lib/components/ui/input/input.svelte";
+    import { defaultStyle } from "@/lib/defaults";
     import { uppercaseFirstLetter } from "@/lib/misc";
+    import { type InputProps } from "@/lib/types";
     import { css } from "@emotion/css";
     import { z, ZodBoolean, ZodEnum, ZodNumber, ZodString } from "zod";
 
-    let defaultStyle = {
-        label: css({
-            display: "flex",
-            flexDirection: "column",
-            gap: ".25em",
-        }),
-        input: css({}),
-    };
-
-    let { input, data = $bindable(), styles = defaultStyle } = $props();
-    let [key, schema]: [string, z.ZodTypeAny] = input;
+    let { input, data = $bindable(), styles, options }: InputProps = $props();
+    let [key, schema] = input;
 
     let placeholder = uppercaseFirstLetter(key);
     let edited = $state(false);
@@ -21,52 +15,59 @@
     function onchange() {
         edited = true;
 
-        let validate = schema.safeParse(data[key]);
-        console.log(validate);
-        if (!validate.success) {
-            console.log(validate.error);
+        validate()        
+    }
 
-            styles = {
-                label: styles.label,
-                input: css({
-                    borderColor: "red",
-                }),
-            };
+    function validate() {
+        let result = schema.safeParse(data[key]);
+        console.log(result);
+        if (!result.success) {
+            console.log(result.error);
+
+            if (options.errorOnMoveOut) {
+
+            }
+
         } else {
-            styles = {
-                label: styles.label,
-                input: css({}),
+            if (options.errorOnMoveOut) {
             };
         }
+
     }
 </script>
 
-<div>
-    <label class={styles.label}
-        >{placeholder + ":"}
+<form>
+
+    
+    <label>{placeholder + ":"}
 
         {#if schema instanceof ZodString}
-            <input
+            <Input
                 type="text"
                 {onchange}
                 {placeholder}
-                class={styles.input}
                 bind:value={data[key]}
             />
         {:else if schema instanceof ZodBoolean}
             <input
                 type="checkbox"
-                {onchange}
+                onchange={() => {
+                    onchange();
+                    console.log(data[key]);
+                }}
                 {placeholder}
-                class={styles.input}
-                bind:value={data[key]}
+                bind:checked={data[key]}
             />
         {:else if schema instanceof ZodNumber}
             <input
                 type="number"
                 {onchange}
+                onkeypress={(e) => {
+                    if (isNaN(e.key)) {
+                        e.preventDefault();
+                    }
+                }}
                 {placeholder}
-                class={styles.input}
                 bind:value={data[key]}
             />
         {:else if schema instanceof ZodEnum}
@@ -77,4 +78,4 @@
             </select>
         {/if}
     </label>
-</div>
+</form>
