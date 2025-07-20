@@ -3,10 +3,55 @@
 
 A simple tool for converting a zod schema to a form automatically. Simply pass in a schema, and receive a form!
 
-Currently only svelte is supported, but I plan on adding react as well.
-
 <p align="center">
 <img width="300" alt="image" src="https://github.com/user-attachments/assets/03be38a5-c571-4794-9c60-9af657222ba0" />
-
+&nbsp;&nbsp;&nbsp;&nbsp;
 <img width="300" alt="image" src="https://github.com/user-attachments/assets/25b8e767-7a7a-4c49-a439-6a7f3494bc8a" />
 </p>
+
+# Limitations
+This is a side project, and pretty broken right now.
+Only svelte is supported, and form submission currently does not work
+
+# Documentation
+
+I'm just beginning to write this, so I'm sorry if it's incomplete. Please feel free to create an issue and ask me for any feature request, or create a pull request yourself.
+
+
+### Getting Started
+For now, since I haven't packaged anything, you might have to copy-paste the components into your code and install the required dependencies.
+
+Simply create a zod schema, with an object. For now, I think it has to be a ```z.object()```. Titles and descriptions can be set for all inputs with ```.meta({title: "title", description: "description"})```
+
+```ts
+<script>
+import { z } from "zod";
+import ZxForm from "./ZxForm.svelte"
+
+const schema = z.object({
+  name: z.string(),
+
+  email: z.email().meta({description: "You will NOT be spammed!"}),
+
+  age: z.number()
+    .gte(21, { error: "Not even old enough to drink?"}),
+
+  password: z.string().min(8).max(25)
+  .refine((p) => {
+    return (p.includes(" ") || p.includes("\\") || p.includes("!") || p.includes("#"))
+  }, { error: "Include a space, backslash, exclamation, or hastag please"}),
+
+  isCool: z.boolean().refine(val => val, { error: "You can't be uncool, sorry :("}).meta({title: "Are you cool?"}),
+
+}).meta({title: "Example Form", description: "A simple form to show you what's possible"})
+</script>
+
+<!-- Then, pass the schema object to the ZxForm element: ```<ZxForm {schema} -->
+
+<ZxForm {schema} />
+```
+
+Which gives you
+
+<img width="588" height="824" alt="image" src="https://github.com/user-attachments/assets/0968af4a-fe55-4d05-bb2f-df6ebe341b2f" />
+
