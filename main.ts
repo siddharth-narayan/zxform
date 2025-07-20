@@ -5,24 +5,21 @@ import ZxForm from '@/svelte/ZxForm.svelte';
 
 const schema = z.object({
   name: z.string(),
-  email: z.string().email(),
-  // age: z.number().lte(6),
-  password: z.string().min(8),
-  // isCool: z.boolean().refine(val => val),
-})
 
-const app = mount(ZxForm, { props: { schema, options: { description: "A simple form"} }, target: document.getElementById("app")! });
+  email: z.email().meta({description: "You will NOT be spammed!"}),
+
+  age: z.number()
+    .gte(21, { error: "Not even old enough to drink?"}),
+
+  password: z.string().min(8).max(25)
+  .refine((p) => {
+    return (p.includes(" ") || p.includes("\\") || p.includes("!") || p.includes("#"))
+  }, { error: "Include a space, backslash, exclamation, or hastag please"}),
+
+  isCool: z.boolean().refine(val => val, { error: "You can't be uncool, sorry :("}).meta({title: "Are you cool?"}),
+
+}).meta({title: "Example Form", description: "A simple form to show you what's possible"})
+
+const app = mount(ZxForm, { props: { schema }, target: document.getElementById("app")! });
 
 export default app;
-
-// import { z } from "zod";
-// const schema = z.object({
-//   name: z.string(),
-//   email: z.string().email(),
-//   age: z.number().lte(6),
-//   password: z.string().min(8),
-//   isCool: z.boolean().refine(val => val),
-// })
-
-
-// const app = mount(Test, { props: { schema }, target: document.getElementById("app")! });

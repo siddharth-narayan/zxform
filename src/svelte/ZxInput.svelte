@@ -1,16 +1,32 @@
 <script lang="ts">
   import { Input } from "@/lib/components/ui/input";
+  import { v4 as uuidv4 } from "uuid";
   import { Label } from "@/lib/components/ui/label";
   import { uppercaseFirstLetter } from "@/lib/misc";
   import { type InputProps } from "@/lib/types";
+  import { Checkbox } from "@/lib/components/ui/checkbox";
 
-  import { uuidv4, z, ZodBoolean, ZodEnum, ZodNumber, ZodString } from "zod";
+  import { z, ZodBoolean, ZodEnum, ZodNumber, ZodString } from "zod";
 
   let { input, data = $bindable() }: InputProps = $props();
   let [key, schema] = input;
 
   let placeholder = uppercaseFirstLetter(key);
   let edited = $state(false);
+
+  let type = $state("");
+    data[key] = schema.meta()?.default ?? "";
+  if (schema instanceof ZodString) {
+    type = "text";
+    data[key] = ""
+  } else if (schema instanceof ZodBoolean) {
+    type = "checkbox";
+    data[key] = schema.meta()?.default ?? false;
+  } else if (schema instanceof ZodNumber) {
+    type = "number";
+  } else if (schema instanceof ZodEnum) {
+    type = "select";
+  }
 
   function onchange() {
     edited = true;
@@ -20,56 +36,46 @@
 
   let id = uuidv4();
 
-  function onkeypress(e) {
-    if (isNaN(e.key)) {
-      e.preventDefault();
-    }
-  }
-
   function validate() {
     let result = schema.safeParse(data[key]);
     console.log(result);
-    // if (!result.success) {
-    //   console.log(result.error);
 
-    //   if (options.errorOnMoveOut) {
-    //   }
-    // } else {
-    //   if (options.errorOnMoveOut) {
-    //   }
-    // }
+    let element: HTMLInputElement = document.getElementById(
+      `id-${id}`
+    ) as HTMLInputElement;
+
+    let errorOnMoveOut = true;
+    if (!result.success) {
+      console.log(result.error.issues[0].message);
+      if (errorOnMoveOut) {
+        element.setCustomValidity(result.error.issues[0].message);
+        element.reportValidity();
+        element.setAttribute("aria-invalid", "true");
+        console.log(element.validity.valid);
+      }
+    } else {
+      element.setCustomValidity(""); // Remove invalid
+      element.setAttribute("aria-invalid", "false");
+    }
   }
 </script>
 
 <div class="grid gap-2">
-  {#if schema instanceof ZodString}
-    <Label for="id-{id}">{placeholder}</Label>
+  <Label for="id-{id}">{schema.meta()?.title ?? placeholder}</Label>
+
+  {#if type != "checkbox"}
     <Input
       id="id-{id}"
-      type="text"
+      {type}
       {onchange}
       {placeholder}
       bind:value={data[key]}
     />
-  <!-- {:else if schema instanceof ZodBoolean}
-    <Label for="id-{id}">{placeholder}</Label>
-    <Input
-      id="id-{id}"
-      type="checkbox"
-      {onchange}
-      {onkeypress}
-      {placeholder}
-      
-    /> -->
-    <!-- {:else if schema instanceof ZodNumber}
-    <Label for="email-{id}">{placeholder + ":"}</Label>
-    <Input type="number" {onchange} {placeholder} bind:value={data[key]} />
-  {:else if schema instanceof ZodEnum}
-    <Label for="email-{id}">{placeholder + ":"}</Label>
-    <select>
-      {#each schema.options as option}
-        <option value="" placeholder={key}></option>
-      {/each}
-    </select> -->
+  {:else}
+    <Checkbox id="id-{id}" bind:checked={data[key]} onclick={onchange}/>
+  {/if}
+
+  {#if schema.meta()?.description}
+    <p class="text-muted-foreground text-sm">{schema.meta()?.description}</p>
   {/if}
 </div>
