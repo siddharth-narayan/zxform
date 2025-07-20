@@ -11,21 +11,27 @@
   let { input, data = $bindable() }: InputProps = $props();
   let [key, schema] = input;
 
+  let meta = schema.meta()
+  
   let placeholder = uppercaseFirstLetter(key);
   let edited = $state(false);
 
   let type = $state("");
-    data[key] = schema.meta()?.default ?? "";
+    data[key] = meta?.default ?? "";
   if (schema instanceof ZodString) {
     type = "text";
     data[key] = ""
   } else if (schema instanceof ZodBoolean) {
     type = "checkbox";
-    data[key] = schema.meta()?.default ?? false;
+    data[key] = meta?.default ?? false;
   } else if (schema instanceof ZodNumber) {
     type = "number";
   } else if (schema instanceof ZodEnum) {
     type = "select";
+  }
+
+  if (meta?.type) {
+    type = meta.type as string
   }
 
   function onchange() {
@@ -61,7 +67,7 @@
 </script>
 
 <div class="grid gap-2">
-  <Label for="id-{id}">{schema.meta()?.title ?? placeholder}</Label>
+  <Label for="id-{id}">{meta?.title ?? placeholder}</Label>
 
   {#if type != "checkbox"}
     <Input
@@ -75,7 +81,7 @@
     <Checkbox id="id-{id}" bind:checked={data[key]} onclick={onchange}/>
   {/if}
 
-  {#if schema.meta()?.description}
-    <p class="text-muted-foreground text-sm">{schema.meta()?.description}</p>
+  {#if meta?.description}
+    <p class="text-muted-foreground text-sm">{meta?.description}</p>
   {/if}
 </div>
