@@ -21,9 +21,29 @@ I'm just beginning to write this, so I'm sorry if it's incomplete. Please feel f
 ### Getting Started
 For now, since I haven't packaged anything, you might have to copy-paste the components into your code and install the required dependencies.
 
-Simply create a zod schema, with an object. For now, I think it has to be a ```z.object()```. Titles and descriptions can be set for all inputs with ```.meta({title: "title", description: "description"})```
 
+Simply create a zod schema.
+Each input you want should be a subobject, for now either a string, number, or boolean. Enum support is planned as a dropdown menu
 ```ts
+z.object({
+  input: z.string()
+})
+```
+
+### Meta
+Include meta information for more customization. You can include the following on an input:
+- default - for a default value
+- type - for a custom input type (like 'password')
+- title
+- description
+
+On the main form, you can also include the following:
+- title
+- description
+- callback - a function that receives the form data. If callback is set, the form will have event.preventDefault() called, so the default form submission will not occur
+
+### Example
+```svelte
 <script>
 import { z } from "zod";
 import ZxForm from "./ZxForm.svelte"
@@ -44,6 +64,7 @@ const schema = z.object({
 </script>
 
 <!-- Then, pass the schema object to the ZxForm element -->
+<!-- You can also include action and method attributes, as if it was an html form element -->
 <ZxForm {schema} />
 ```
 
