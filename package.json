@@ -1,5 +1,19 @@
 {
+  "name": "zxforms",
+  "version": "0.0.1",
   "type": "module",
+	"license": "MIT",
+  "files": ["dist"],
+  "exports": {
+		".": {
+      "types": "./dist/index.d.ts",
+			"svelte": "./dist/index.js"
+		}
+  },
+  "scripts": {
+    "preview:svelte": "vite",
+    "build:svelte": "@sveltejs/package -i src/svelte -o dist/svelte"
+  },
   "devDependencies": {
     "@internationalized/date": "^3.8.2",
     "@lucide/svelte": "^0.515.0",
@@ -23,8 +37,5 @@
     "vite": "^6.3.3",
     "vite-tsconfig-paths": "^5.1.4",
     "zod": "^4.0.0-beta.20250503T014749"
-  },
-  "scripts": {
-    "preview:svelte": "vite"
   }
 }
