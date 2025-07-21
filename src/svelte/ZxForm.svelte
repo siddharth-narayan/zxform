@@ -8,6 +8,8 @@
   import { ModeWatcher } from "mode-watcher";
   import ThemeSwitcher from "@/lib/components/large/ThemeSwitcher.svelte";
   import { Button } from "@/lib/components/ui/button";
+    import { ZodType } from "zod";
+    import { validate_callback } from "./validate-store";
 
   let { schema, action = "", method = "GET"}: FormProps = $props();
 
@@ -15,14 +17,16 @@
   let data: any = $state({});
 
   function onsubmit(event: SubmitEvent) {
-    console.log(data);
     if (meta?.preventDefault || meta?.callback) {
       event.preventDefault();
     }
 
+    
+    validate_callback.update((value) => !value)
     let result = schema.safeParse(data)
-    console.log(result)
+    
     if (!result.success) {
+      event.preventDefault()
       // TODO: Add in validate() on the inputs so that they turn red
       return 
     }
@@ -43,11 +47,11 @@
   </Card.Header>
   <Card.Content>
     <form novalidate {onsubmit} class="grid gap-4" {action} {method}>
-      {#each Object.entries(schema.shape) as input}
-        <ZxInput {input} bind:data></ZxInput>
+      {#each Object.entries(schema.shape) as [key, value]}
+        <ZxInput input={[key, value as ZodType<any, any>]} bind:data></ZxInput>
       {/each}
 
-      <Button type="submit" class="w-full">Submit</Button>
+      <Button type="submit" class="w-full hover:cursor-pointer">Submit</Button>
     </form>
   </Card.Content>
 </Card.Root>

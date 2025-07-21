@@ -2,63 +2,76 @@
   import { Input } from "@/lib/components/ui/input";
   import { v4 as uuidv4 } from "uuid";
   import { Label } from "@/lib/components/ui/label";
-  import { uppercaseFirstLetter } from "@/lib/misc";
+  import { skipFirstSubscribe, uppercaseFirstLetter } from "@/lib/misc";
   import { type InputProps } from "@/lib/types";
   import { Checkbox } from "@/lib/components/ui/checkbox";
+  import { Asterisk } from "@lucide/svelte";
 
-  import { z, ZodBoolean, ZodEnum, ZodNumber, ZodString } from "zod";
+  import {
+    z,
+    ZodBoolean,
+    ZodEnum,
+    ZodNumber,
+    ZodOptional,
+    ZodString,
+  } from "zod";
+  import * as Select from "@/lib/components/ui/select/index.js";
+  import { validate_callback } from "./validate-store";
+  import { onMount } from "svelte";
 
   let { input, data = $bindable() }: InputProps = $props();
   let [key, schema] = input;
 
-  let meta = schema.meta()
-  
-  let placeholder = uppercaseFirstLetter(key);
-  let edited = $state(false);
+  // Get options
+  let id = uuidv4(); // TODO: Change this eventually
+  let meta = schema.meta();
+  let optional = schema instanceof ZodOptional;
+  let placeholder = (meta?.placeholder as string) ?? uppercaseFirstLetter(key);
+  let title = meta?.title ?? placeholder;
+  let description = meta?.description;
 
-  let type = $state("");
-    data[key] = meta?.default ?? "";
+  let type = $state("text");
+  data[key] = meta?.default;
+
   if (schema instanceof ZodString) {
-    type = "text";
-    data[key] = ""
-  } else if (schema instanceof ZodBoolean) {
-    type = "checkbox";
-    data[key] = meta?.default ?? false;
   } else if (schema instanceof ZodNumber) {
     type = "number";
+  } else if (schema instanceof ZodBoolean) {
+    type = "checkbox"; // TODO: Make it radio buttons so that there can be optional variants
+    data[key] = meta?.default ?? false;
   } else if (schema instanceof ZodEnum) {
     type = "select";
   }
 
   if (meta?.type) {
-    type = meta.type as string
+    type = meta.type as string;
   }
 
-  function onchange() {
-    edited = true;
+  skipFirstSubscribe(validate_callback, () => {
+    validate();
+  });
 
+  function onchange() {
     validate();
   }
 
-  let id = uuidv4();
-
   function validate() {
     let result = schema.safeParse(data[key]);
-    console.log(result);
+    // console.log(result);
 
     let element: HTMLInputElement = document.getElementById(
-      `id-${id}`
+      `id-${id}`,
     ) as HTMLInputElement;
 
-    let errorOnMoveOut = true;
+    if (!element) {
+      console.log(id);
+      return;
+    }
+
     if (!result.success) {
-      console.log(result.error.issues[0].message);
-      if (errorOnMoveOut) {
-        element.setCustomValidity(result.error.issues[0].message);
-        element.reportValidity();
-        element.setAttribute("aria-invalid", "true");
-        console.log(element.validity.valid);
-      }
+      element.setCustomValidity(result.error.issues[0].message);
+      element.reportValidity();
+      element.setAttribute("aria-invalid", "true");
     } else {
       element.setCustomValidity(""); // Remove invalid
       element.setAttribute("aria-invalid", "false");
@@ -67,9 +80,28 @@
 </script>
 
 <div class="grid gap-2">
-  <Label for="id-{id}">{meta?.title ?? placeholder}</Label>
+  <Label for="id-{id}" class="gap-0"
+    >{title}
+    {#if !optional}
+      <sup><Asterisk size="12" color="#ff8080" /></sup>
+    {/if}
+  </Label>
 
-  {#if type != "checkbox"}
+  {#if type == "checkbox"}
+    <Checkbox id="id-{id}" bind:checked={data[key]} onclick={onchange} />
+  {:else if type == "select"}
+    <Select.Root type="single" bind:value={data[key]}>
+      <Select.Trigger id="id-{id}"
+        >{data[key] != "" ? data[key] : placeholder}</Select.Trigger
+      >
+      <Select.Content>
+        {#each (schema as ZodEnum<any>).options as option}
+          <Select.Item value={option}>{option}</Select.Item>
+        {/each}
+      </Select.Content>
+    </Select.Root>
+  {:else}
+    <!-- This is the fallback case, it should be good for the majority of input types -->
     <Input
       id="id-{id}"
       {type}
@@ -77,11 +109,9 @@
       {placeholder}
       bind:value={data[key]}
     />
-  {:else}
-    <Checkbox id="id-{id}" bind:checked={data[key]} onclick={onchange}/>
   {/if}
 
-  {#if meta?.description}
-    <p class="text-muted-foreground text-sm">{meta?.description}</p>
+  {#if description}
+    <p class="text-muted-foreground text-sm">{description}</p>
   {/if}
 </div>
