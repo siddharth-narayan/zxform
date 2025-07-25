@@ -5,5 +5,9 @@ import path from 'path';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
-	resolve: { alias: { $lib: path.resolve("./src/lib") } }
+	resolve: { alias: { $lib: path.resolve("./src/lib") } },
+
+	// optimizeDeps: {
+	// 	exclude: ['@lucide']
+	// }
 });
