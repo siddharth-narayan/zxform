@@ -9,7 +9,13 @@
   import { type FormProps } from "./types.js";
   import { validate_callback } from "./validate-store.js";
 
-  let { schema, action = "", method = "GET" }: FormProps = $props();
+  let {
+    schema,
+    action = "",
+    method = "GET",
+    // header,
+    footer,
+  }: FormProps = $props();
 
   let meta = schema.meta();
   let data: any = $state({});
@@ -45,7 +51,9 @@
         <ZxInput input={[key, value as ZodType<any, any>]} bind:data></ZxInput>
       {/each}
 
-      <Button type="submit" class="w-full hover:cursor-pointer">Submit</Button>
+      <Button type="submit" class="w-full hover:cursor-pointer">{meta?.submitName ? meta?.submitName : "Submit"}</Button>
     </form>
+
+    {@render footer?.()}
   </Card.Content>
 </Card.Root>

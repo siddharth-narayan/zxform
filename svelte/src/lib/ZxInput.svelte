@@ -24,18 +24,20 @@
   // Get options
   let id = uuidv4(); // TODO: Change this eventually
   let meta = schema.meta();
-  let optional = schema instanceof ZodOptional;
   let placeholder = (meta?.placeholder as string) ?? uppercaseFirstLetter(key);
   let title = meta?.title ?? placeholder;
   let description = meta?.description;
+  let optional = schema instanceof ZodOptional;
+
+  let baseSchema = optional ? (schema as ZodOptional<any>).unwrap() : schema 
 
   let type = $state("text");
   data[key] = meta?.default;
 
-  if (schema instanceof ZodString) {
-  } else if (schema instanceof ZodNumber) {
+  if (baseSchema instanceof ZodString) {
+  } else if (baseSchema instanceof ZodNumber) {
     type = "number";
-  } else if (schema instanceof ZodBoolean) {
+  } else if (baseSchema instanceof ZodBoolean) {
     type = "checkbox"; // TODO: Make it radio buttons so that there can be optional variants
     data[key] = meta?.default ?? false;
   } else if (schema instanceof ZodEnum) {
