@@ -2,40 +2,19 @@
   "name": "zxforms",
   "version": "0.0.1",
   "type": "module",
-	"license": "MIT",
-  "files": ["dist"],
-  "exports": {
-		".": {
-      "types": "./dist/index.d.ts",
-			"svelte": "./dist/index.js"
-		}
-  },
+  "license": "MIT",
+  "workspaces": [
+    "svelte",
+    "react"
+  ],
   "scripts": {
-    "preview:svelte": "vite",
-    "build:svelte": "@sveltejs/package -i src/svelte -o dist/svelte"
+    "build": "npm run build --workspaces",
+    "pack": "npm run pack --workspaces"
   },
-  "devDependencies": {
-    "@internationalized/date": "^3.8.2",
-    "@lucide/svelte": "^0.515.0",
-    "@tailwindcss/vite": "^4.1.11",
-    "bits-ui": "^2.8.10",
-    "tailwind-variants": "^1.0.0",
-    "tailwindcss": "^4.1.11",
-    "tw-animate-css": "^1.3.5",
-    "typescript": "^5.8.3"
+  "exports": {
+    "./svelte": "./svelte"
   },
   "dependencies": {
-    "@emotion/css": "^11.13.5",
-    "@sveltejs/vite-plugin-svelte": "^5.0.3",
-    "clsx": "^2.1.1",
-    "csstype": "^3.1.3",
-    "mode-watcher": "^1.1.0",
-    "react": "^19.1.0",
-    "svelte": "^5.28.2",
-    "tailwind-merge": "^3.3.1",
-    "uuid": "^11.1.0",
-    "vite": "^6.3.3",
-    "vite-tsconfig-paths": "^5.1.4",
-    "zod": "^4.0.0-beta.20250503T014749"
+    "@tailwindcss/cli": "^4.1.11"
   }
 }
