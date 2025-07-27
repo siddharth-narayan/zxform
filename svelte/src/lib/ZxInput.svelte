@@ -1,13 +1,7 @@
 <script lang="ts">
   import { Asterisk } from "@lucide/svelte";
   import { v4 as uuidv4 } from "uuid";
-  import {
-    ZodBoolean,
-    ZodEnum,
-    ZodNumber,
-    ZodOptional,
-    ZodString,
-  } from "zod";
+  import { ZodBoolean, ZodEnum, ZodNumber, ZodOptional, ZodString } from "zod";
 
   import Input from "$lib/components/ui/input/input.svelte";
   import Label from "$lib/components/ui/label/label.svelte";
@@ -17,6 +11,7 @@
   import { skipFirstSubscribe, uppercaseFirstLetter } from "./misc.js";
   import { type InputProps } from "./types.js";
   import { validate_callback } from "./validate-store.js";
+  import Textarea from "./components/ui/textarea/textarea.svelte";
 
   let { input, data = $bindable() }: InputProps = $props();
   let [key, schema] = input;
@@ -24,12 +19,12 @@
   // Get options
   let id = uuidv4(); // TODO: Change this eventually
   let meta = schema.meta();
-  let placeholder = (meta?.placeholder as string) ?? uppercaseFirstLetter(key);
-  let title = meta?.title ?? placeholder;
+  let title = meta?.title ?? uppercaseFirstLetter(key);
+  let placeholder = (meta?.placeholder as string) ?? title;
   let description = meta?.description;
   let optional = schema instanceof ZodOptional;
 
-  let baseSchema = optional ? (schema as ZodOptional<any>).unwrap() : schema 
+  let baseSchema = optional ? (schema as ZodOptional<any>).unwrap() : schema;
 
   let type = $state("text");
   data[key] = meta?.default;
@@ -65,7 +60,7 @@
     ) as HTMLInputElement;
 
     if (!element) {
-      console.log(id);
+      // console.log(id);
       return;
     }
 
@@ -82,7 +77,7 @@
 
 <div class="grid gap-2">
   <Label for="id-{id}" class="gap-0"
-    >{title}
+    >{@html title}
     {#if !optional}
       <sup><Asterisk size="12" color="#ff8080" /></sup>
     {/if}
@@ -101,6 +96,13 @@
         {/each}
       </Select.Content>
     </Select.Root>
+  {:else if type == "textarea"}
+    <Textarea
+      id="id-{id}"
+      {onchange}
+      {placeholder}
+      bind:value={data[key]}
+    />
   {:else}
     <!-- This is the fallback case, it should be good for the majority of input types -->
     <Input
@@ -113,6 +115,6 @@
   {/if}
 
   {#if description}
-    <p class="text-muted-foreground text-sm">{description}</p>
+    <p class="text-muted-foreground text-sm">{@html description}</p>
   {/if}
 </div>

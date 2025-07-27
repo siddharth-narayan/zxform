@@ -21,19 +21,21 @@
   let data: any = $state({});
 
   function onsubmit(event: SubmitEvent) {
-    if (meta?.preventDefault || meta?.callback) {
+    if (meta?.callback) {
       event.preventDefault();
     }
 
     validate_callback.update((value) => !value);
     let result = schema.safeParse(data);
 
+    console.log(result)
     if (!result.success) {
       event.preventDefault();
       // TODO: Add in validate() on the inputs so that they turn red
       return;
     }
-
+    
+    console.log(meta?.callback)
     if (typeof meta?.callback === "function") {
       meta.callback(result.data);
     }
@@ -42,8 +44,8 @@
 
 <Card.Root class="mx-auto w-full max-w-sm">
   <Card.Header>
-    <Card.Title class="text-2xl">{meta?.title ?? "Form"}</Card.Title>
-    <Card.Description>{meta?.description ?? ""}</Card.Description>
+    <Card.Title class="text-2xl">{@html meta?.title ?? "Form"}</Card.Title>
+    <Card.Description>{@html meta?.description ?? ""}</Card.Description>
   </Card.Header>
   <Card.Content>
     <form novalidate {onsubmit} class="grid gap-4" {action} {method}>
@@ -51,7 +53,7 @@
         <ZxInput input={[key, value as ZodType<any, any>]} bind:data></ZxInput>
       {/each}
 
-      <Button type="submit" class="w-full hover:cursor-pointer">{meta?.submitName ? meta?.submitName : "Submit"}</Button>
+      <Button type="submit" class="w-full hover:cursor-pointer">{@html meta?.submitName ? meta?.submitName : "Submit"}</Button>
     </form>
 
     {@render footer?.()}
