@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import "tailwindcss" prefix(zxforms);
 @import "tw-animate-css";
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
@@ -113,10 +113,10 @@
  
 @layer base {
  * {
-  @apply border-border outline-ring/50;
+  @apply zxforms:border-border zxforms:outline-ring/50;
  }
  
  body {
-  @apply bg-background text-foreground;
+  @apply zxforms:bg-background zxforms:text-foreground;
  }
 }

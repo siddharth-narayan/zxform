@@ -8,6 +8,7 @@
 
   import { type FormProps } from "./types.js";
   import { validate_callback } from "./validate-store.js";
+  import { cn } from "./utils.ts";
 
   let {
     schema,
@@ -42,18 +43,18 @@
   }
 </script>
 
-<Card.Root class="mx-auto w-full max-w-sm">
+<Card.Root class={cn("mx-auto w-full max-w-sm")}>
   <Card.Header>
-    <Card.Title class="text-2xl">{@html meta?.title ?? "Form"}</Card.Title>
+    <Card.Title class={cn("text-2xl")}>{@html meta?.title ?? "Form"}</Card.Title>
     <Card.Description>{@html meta?.description ?? ""}</Card.Description>
   </Card.Header>
   <Card.Content>
-    <form novalidate {onsubmit} class="grid gap-4" {action} {method}>
+    <form novalidate {onsubmit} class={cn("grid gap-4")} {action} {method}>
       {#each Object.entries(schema.shape) as [key, value]}
         <ZxInput input={[key, value as ZodType<any, any>]} bind:data></ZxInput>
       {/each}
 
-      <Button type="submit" class="w-full hover:cursor-pointer">{@html meta?.submitName ? meta?.submitName : "Submit"}</Button>
+      <Button type="submit" class={cn("w-full hover:cursor-pointer")}>{@html meta?.submitName ? meta?.submitName : "Submit"}</Button>
     </form>
 
     {@render footer?.()}

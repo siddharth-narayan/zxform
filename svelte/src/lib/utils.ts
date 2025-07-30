@@ -2,7 +2,12 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-	return twMerge(clsx(inputs));
+	let classes =  twMerge(clsx(inputs));
+	let prefixed = classes.split(" ").map(s => `zxforms:${s}`).join(" ")
+
+	console.log(`normal: ${classes}`)
+	console.log(`prefixed: ${prefixed}`)
+	return prefixed
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

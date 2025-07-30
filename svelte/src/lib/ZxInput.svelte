@@ -12,6 +12,7 @@
   import { type InputProps } from "./types.js";
   import { validate_callback } from "./validate-store.js";
   import Textarea from "./components/ui/textarea/textarea.svelte";
+  import { cn } from "./utils.ts";
 
   let { input, data = $bindable() }: InputProps = $props();
   let [key, schema] = input;
@@ -75,8 +76,8 @@
   }
 </script>
 
-<div class="grid gap-2">
-  <Label for="id-{id}" class="gap-0"
+<div class={cn("grid gap-2")}>
+  <Label for="id-{id}" class={cn("gap-0")}
     >{@html title}
     {#if !optional}
       <sup><Asterisk size="12" color="#ff8080" /></sup>
@@ -115,6 +116,6 @@
   {/if}
 
   {#if description}
-    <p class="text-muted-foreground text-sm">{@html description}</p>
+    <p class={cn("text-muted-foreground text-sm")}>{@html description}</p>
   {/if}
 </div>
