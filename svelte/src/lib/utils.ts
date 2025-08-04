@@ -3,7 +3,10 @@ import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
 	let classes =  twMerge(clsx(inputs));
-	let prefixed = classes.split(" ").map(s => `zxforms:${s}`).join(" ")
+	let prefixed = classes.split(" ").map(s => {
+      if (!s || s.startsWith("zxforms:")) return s;
+      return `zxforms:${s}`;
+    }).join(" ")
 
 	console.log(`normal: ${classes}`)
 	console.log(`prefixed: ${prefixed}`)
