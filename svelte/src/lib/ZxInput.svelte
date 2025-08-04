@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Asterisk } from "@lucide/svelte";
+  import Asterisk from "@lucide/svelte/icons/asterisk";
   import { v4 as uuidv4 } from "uuid";
   import { ZodBoolean, ZodEnum, ZodNumber, ZodOptional, ZodString } from "zod";
 
