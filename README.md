@@ -25,7 +25,7 @@ This example will be assuming you're starting a new project from scratch. If you
 Run the following to set up a project
 ```bash
 npx sv create # Select the options you want in your new project
-npm i zod @lucide/svelte zxforms-svelte
+npm i zod zxforms-svelte
 ```
 
 Simply create a zod schema.
