@@ -1,5 +1,3 @@
-import "../App.css";
-
 import ZxInput from "./ZxInput.tsx";
 
 import {

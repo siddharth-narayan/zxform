@@ -1,4 +1,3 @@
-import './App.css'
 import ZxForm from './lib/ZxForm'
 import { z } from "zod"
 
