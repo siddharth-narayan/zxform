@@ -13,7 +13,7 @@
     schema,
     action = "",
     method = "GET",
-    // header,
+    header,
     footer,
   }: FormProps = $props();
 
@@ -34,7 +34,7 @@
       // TODO: Add in validate() on the inputs so that they turn red
       return;
     }
-    
+
     console.log(meta?.callback)
     if (typeof meta?.callback === "function") {
       meta.callback(result.data);
@@ -44,8 +44,12 @@
 
 <Card.Root class="mx-auto w-full max-w-sm zxform">
   <Card.Header>
-    <Card.Title class="text-2xl">{@html meta?.title ?? "Form"}</Card.Title>
-    <Card.Description>{@html meta?.description ?? ""}</Card.Description>
+    {#if header}
+      {@render header()}
+    {:else}
+      <Card.Title class="text-2xl">{@html meta?.title ?? "Form"}</Card.Title>
+      <Card.Description>{@html meta?.description ?? ""}</Card.Description>
+    {/if}
   </Card.Header>
   <Card.Content>
     <form novalidate {onsubmit} class="grid gap-4" {action} {method}>

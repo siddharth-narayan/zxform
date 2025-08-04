@@ -1,6 +1,6 @@
 {
 	"name": "zxforms-svelte",
-	"version": "0.0.10",
+	"version": "0.0.13",
 	"keywords": [
 		"svelte", "form-builder", "forms", "zod"
 	],

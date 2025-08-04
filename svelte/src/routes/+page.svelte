@@ -10,7 +10,7 @@
   // - Optional inputs
   // - Custom HTML in all descriptions, titles, and the submit button
   // - Callback on the form element
-  // - The different types of supported inputs: 
+  // - The different types of supported inputs:
   //   - text
   //   - password (custom types)
   //   - dropdown menu (enum)
@@ -39,7 +39,16 @@
       age: z.number().gte(4).optional(), // Optional inputs
       password: z.string().nonempty().meta({ type: "password" }), // Set a custom type, like "password"
       feedback: z.string().nonempty().meta({ type: "textarea" }),
-      terms: z.boolean().refine((v) => v, {message: "You must agree to the terms and conditions"}).meta({title: "Terms and Conditions", description: "You must agree to our <a href=\"#\" style=\"text-decoration: underline;\">Terms and Conditions</a>"})
+      terms: z
+        .boolean()
+        .refine((v) => v, {
+          message: "You must agree to the terms and conditions",
+        })
+        .meta({
+          title: "Terms and Conditions",
+          description:
+            'You must agree to our <a href="#" style="text-decoration: underline;">Terms and Conditions</a>',
+        }),
     })
     .meta({
       title: "Example Form", // Form title
@@ -53,14 +62,17 @@
 <ThemeSwitcher />
 
 <ZxForm {schema}>
-  <!-- Use a footer snippet to include a custom footer -->
+  <!-- Use snippets to include a custom header or footer -->
+  <!-- {#snippet header()}
+    // Snippet content here
+  {/snippet} -->
   {#snippet footer()}
-    <div class="">
+    <div class="flex justify-between">
       <p class="dark:text-gray-100 text-sm mt-4 font-semibold text-stone-900">
-        Visit us at <a href="#" class="underline"
-          >example.com</a
-        > ❤️
+        Visit us at <a href="#" class="underline">example.com</a> ❤️
       </p>
+
+      <a href="#" class="dark:text-neutral-400 underline text-sm mt-4 font-semibold text-stone-800 flex">Sign in instead</a>
     </div>
   {/snippet}
 </ZxForm>
