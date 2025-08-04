@@ -42,7 +42,7 @@
   }
 </script>
 
-<Card.Root class="mx-auto w-full max-w-sm">
+<Card.Root class="mx-auto w-full max-w-sm zxform">
   <Card.Header>
     <Card.Title class="text-2xl">{@html meta?.title ?? "Form"}</Card.Title>
     <Card.Description>{@html meta?.description ?? ""}</Card.Description>
