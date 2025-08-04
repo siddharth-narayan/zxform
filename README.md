@@ -3,10 +3,11 @@
 
 A simple tool for converting a zod schema to a form automatically. Simply pass in a schema, and receive an automatically validated form!
 
+Here's a look at what's possible
 <p align="center">
-<img width="400" alt="image" src="https://github.com/user-attachments/assets/03be38a5-c571-4794-9c60-9af657222ba0" />
-&nbsp;&nbsp;&nbsp;&nbsp;
-<img width="400" alt="image" src="https://github.com/user-attachments/assets/25b8e767-7a7a-4c49-a439-6a7f3494bc8a" />
+  <img width="400" alt="image" src="https://github.com/user-attachments/assets/bd4526c3-7833-4bd1-b737-fb282b3044b0" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img width="400" alt="image" src="https://github.com/user-attachments/assets/bf657cb5-dd03-4559-ade9-c81e4ec3db2c" />
 </p>
 
 # Limitations
@@ -48,42 +49,69 @@ On the main form, you can also include the following:
 - callback - a function that receives the form data. If callback is set, the form will have event.preventDefault() called, so the default form submission will not occur
 
 # Example
-Here's an example which attempts to show off all features
+Here's an example which attempts to show off all features. This example creates the forms shown at the top of this README
 
 ```svelte
 <script>
 import { z } from "zod";
 import ZxForm from "zxforms-svelte"
 
-function cb(data: any) {
-  console.log("Form submitted, data:")
-  console.log(data)
-}
+  function cb(data: any) {
+    console.log("Form submitted, data:");
+    console.log(data);
+  }
 
-const schema = z.object({
-  name: z.string(),
+  const schema = z
+    .object({
+      email: z
+        .email({ message: "Please enter a valid email" }) // Custom invalid messages
+        .meta({
+          description: "We <b>promise</b>  you won't be spammed!", // Custom html is available in descriptions, placeholders and the submit button
+          placeholder: "example@gmail.com",
+        }),
 
-  email: z.email().meta({description: "You will NOT be spammed!"}),
-
-  age: z.number()
-    .gte(21, { error: "Not even old enough to drink?"}),
-
-  password: z.string().min(8).max(25).meta({type: "password", description: "Use a really strong password!"}),
-
-  isCool: z.boolean().refine(val => val, { error: "You can't be uncool, sorry :("}).meta({title: "Are you cool?"}),
-
-}).meta({title: "Example Form", description: "A simple form to show you what's possible", callback: cb})
+      name: z.string().nonempty(),
+      mood: z
+        .enum(["Happy", "Sad", "Excited", "Bored"])
+        .meta({ title: "How are you feeling?", placeholder: "Happy" }), // Custom input title
+      age: z.number().gte(4).optional(), // Optional inputs
+      password: z.string().nonempty().meta({ type: "password" }), // Set a custom type, like "password"
+      feedback: z.string().nonempty().meta({ type: "textarea" }),
+      terms: z
+        .boolean()
+        .refine((v) => v, {
+          message: "You must agree to the terms and conditions",
+        })
+        .meta({
+          title: "Terms and Conditions",
+          description:
+            'You must agree to our <a href="#" style="text-decoration: underline;">Terms and Conditions</a>',
+        }),
+    })
+    .meta({
+      title: "Example Form", // Form title
+      description: "An example form to show you what's possible", // Description at the top of the form
+      submitName: "Sign up", // Custom submit button title
+      callback: cb, // Custom submit callback
+    });
 </script>
 
 <!-- Then, pass the schema object to the ZxForm element -->
 <!-- You can also include action and method attributes, as if it was an html form element -->
-<ZxForm {schema} />
-```
+<ZxForm {schema}>
+  <!-- Use snippets to include a custom header or footer -->
+  <!-- {#snippet header()}
+    // Snippet content here
+  {/snippet} -->
+  {#snippet footer()}
+    <div class="flex justify-between">
+      <p class="dark:text-gray-100 text-sm mt-4 font-semibold text-stone-900">
+        Visit us at <a href="#" class="underline">example.com</a> ❤️
+      </p>
 
-Which gives you
-<p align="center">
-<img width="400" alt="image" src="https://github.com/user-attachments/assets/d95e2727-d4e0-4c5b-83c3-aedbf83f8f7c" />
-&nbsp;&nbsp;&nbsp;&nbsp;
-<img width="400" alt="image" src="https://github.com/user-attachments/assets/7f156496-2218-489d-b9e8-a5b0870a522e" />
-</p>
+      <a href="#" class="dark:text-neutral-400 underline text-sm mt-4 font-semibold text-stone-800 flex">Sign in instead</a>
+    </div>
+  {/snippet}
+</ZxForm>
+```
 
