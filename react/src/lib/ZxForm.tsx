@@ -13,24 +13,40 @@ import {
 import { Button } from "../components/ui/button.tsx";
 
 import { z, ZodType } from "zod"
-import { useState } from "react";
+import { JSX, useState } from "react";
 
 export type FormProps = {
   schema: z.ZodObject<any>;
   action?: string,
-  method?: string | undefined
+  method?: string | undefined,
+  header?: JSX.Element,
+  footer?: JSX.Element
 };
 
-export default function ZxForm({ schema, action = "", method = "GET" }: FormProps) {
+export default function ZxForm({ schema, action = "", method = "GET", header, footer }: FormProps) {
   let meta = schema.meta()
-  let data: any = useState({});
+  let [data, setData] = useState({});
 
+  // returns setKey functions for each input
+  function setKeyGen(key: any) {
+    return (value) => {
+      setData(prev => ({
+        ...prev,
+        [key]: value
+      }))
+    }
+  }
+  
   function onsubmit(event) {
     if (meta?.preventDefault || meta?.callback) {
       event.preventDefault();
     }
 
     let result = schema.safeParse(data)
+    
+    if (!result.success) {
+      return
+    }
 
     if (typeof meta?.callback === "function") {
       meta.callback(result.data);
@@ -39,16 +55,20 @@ export default function ZxForm({ schema, action = "", method = "GET" }: FormProp
 
   return (<Card className="mx-auto w-full max-w-sm">
     <CardHeader>
-      <CardTitle className="text-2xl">{meta?.title ?? "Form"}</CardTitle>
-      <CardDescription>{meta?.description ?? ""}</CardDescription>
+      {header ? <header /> : 
+      <><CardTitle className="text-2xl">{meta?.title ?? "Form"}</CardTitle><CardDescription>{meta?.description ?? ""}</CardDescription></>
+      }
     </CardHeader>
     <CardContent>
       <form noValidate onSubmit={onsubmit} className="grid gap-4" action={action} method={method}>
         {Object.entries(schema.shape).map(entry => {
-          return (<ZxInput key={entry[0]} input={entry as [string, ZodType]} data={entry[1]}></ZxInput>)
+          let [key, schema] = entry
+          return (<ZxInput key={key} _key={key} schema={schema as ZodType} value={data[key]} setValue={setKeyGen(key)}></ZxInput>)
         })}
         <Button type="submit" className="w-full hover:cursor-pointer">Submit</Button>
       </form>
+
+      {footer ? <footer /> : null}
     </CardContent>
   </Card>)
 }

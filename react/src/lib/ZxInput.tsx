@@ -1,7 +1,6 @@
 import { Input } from "../components/ui/input";
-import { v4 as uuidv4 } from "uuid";
 import { Label } from "../components/ui/label";
-import { skipFirstSubscribe, uppercaseFirstLetter } from "@/lib/misc";
+import { useId } from "react";
 import { Checkbox } from "../components/ui/checkbox.tsx";
 import { Asterisk } from "lucide-react";
 
@@ -26,37 +25,37 @@ import {
 import { useState, useEffect } from "react";
 
 type InputProps = {
-  input: [string, z.ZodType];
-  data: any;
+  _key: string; // For placeholder
+  schema: z.ZodType;
+  value: any;
+  setValue: (key: any) => void;
 }
 
-export default function ZxInput({ input, data }: InputProps) {
+export default function ZxInput({ schema, _key, value, setValue }: InputProps) {
   function uppercaseFirstLetter(s: string) {
     return s.charAt(0).toUpperCase() + s.slice(1)
   }
 
-  let [key, schema] = input;
-
   // Get options
-  let id = uuidv4(); // TODO: Change this eventually
+
+  console.log(`key: ${_key}, value: ${value}`)
+  const id = useId();
   let meta = schema.meta();
   let optional = schema instanceof ZodOptional;
-  let placeholder = (meta?.placeholder as string) ?? uppercaseFirstLetter(key);
+
+
+  let placeholder = (meta?.placeholder as string) ?? uppercaseFirstLetter(_key);
   let title = meta?.title ?? placeholder;
   let description = meta?.description;
 
-  const [type, setType] = useState<string>(typeof meta?.type === "string" ? meta.type : "text");
-  const [value, setValue] = useState<any>(
-    data[key] !== undefined ? data[key] : meta?.default
-  );
+  const [type, setType] = useState<string>("text");
+  const [modified, setModified] = useState(false);
 
   // Set type and default value only when schema/meta changes
   // Avoids rerender loop
   useEffect(() => {
     let newType = "text";
-    if (schema instanceof ZodString) {
-      newType = "text";
-    } else if (schema instanceof ZodNumber) {
+    if (schema instanceof ZodNumber) {
       newType = "number";
     } else if (schema instanceof ZodBoolean) {
       newType = "checkbox";
@@ -68,24 +67,36 @@ export default function ZxInput({ input, data }: InputProps) {
     }
     setType(newType);
 
+
     // Set default value if not already set
-    if (data[key] === undefined && meta?.default !== undefined) {
+    if (value === undefined && meta?.default !== undefined) {
       setValue(meta.default);
     }
-  }, [schema, meta, key]);
+  }, [schema, meta, type]);
 
-  // Keep data[key] in sync with value
-  useEffect(() => {
-    data[key] = value;
-  }, [value, key, data]);
+  function onchange(e) {
+    setModified(true)
 
-  function onchange() {
-    validate();
+    if (type == "number") {
+      setValue(Number(e.target.value))
+    } else if (type == "checkbox") {
+      setValue(!value)
+    } else if (type == "select") {
+      setValue(e.target.value)
+    } else {
+      setValue(e.target.value)
+    }
+  }
+
+  function onblur() {
+    if (modified) {
+      validate()
+      setModified(false)
+    }
   }
 
   function validate() {
-    let result = schema.safeParse(data[key]);
-    // console.log(result);
+    let result = schema.safeParse(value);
 
     let element: HTMLInputElement = document.getElementById(
       `id-${id}`,
@@ -110,7 +121,7 @@ export default function ZxInput({ input, data }: InputProps) {
   return (
     <div className="grid gap-2">
       <Label htmlFor={`id-${id}`} className="gap-0">
-        {title}
+        <div dangerouslySetInnerHTML={{ __html: title }} />
         {!optional ? <sup><Asterisk size="12" color="#ff8080" /></sup> : null}
       </Label>
 
@@ -118,12 +129,11 @@ export default function ZxInput({ input, data }: InputProps) {
         <Checkbox
           id={`id-${id}`}
           checked={!!value}
-          onClick={() => { setValue(!value); onchange(); }}
+          onClick={onchange}
         />
       ) : type === "select" ? (
         <Select
-          value={value}
-          onValueChange={val => { setValue(val); onchange(); }}
+          onValueChange={onchange}
         >
           <SelectTrigger id={`id-${id}`}>
             {value !== "" ? value : placeholder}
@@ -138,14 +148,13 @@ export default function ZxInput({ input, data }: InputProps) {
         <Input
           id={`id-${id}`}
           type={type}
-          onChange={e => { setValue((e.target as HTMLInputElement).value); onchange(); }}
+          onChange={onchange}
+          onBlur={onblur}
           placeholder={placeholder}
-          value={value}
         />
       )}
 
-      {description ? <p className="text-muted-foreground text-sm">{description}</p> : null}
+      <div dangerouslySetInnerHTML={{ __html: description ? description : "" }} />
     </div>
-  );
-
+  )
 }
