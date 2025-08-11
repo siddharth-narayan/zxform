@@ -14,6 +14,7 @@ import { Button } from "../components/ui/button.tsx";
 
 import { z, ZodType } from "zod"
 import { JSX, useState } from "react";
+import { sendValidateSignal } from "./utils.ts";
 
 export type FormProps = {
   schema: z.ZodObject<any>;
@@ -45,6 +46,7 @@ export default function ZxForm({ schema, action = "", method = "GET", header, fo
     let result = schema.safeParse(data)
     
     if (!result.success) {
+      sendValidateSignal()
       return
     }
 

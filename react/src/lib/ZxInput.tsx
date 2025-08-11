@@ -23,6 +23,7 @@ import {
   ZodString,
 } from "zod";
 import { useState, useEffect } from "react";
+import { useValidationCallback } from "./utils.ts";
 
 type InputProps = {
   _key: string; // For placeholder
@@ -82,7 +83,7 @@ export default function ZxInput({ schema, _key, value, setValue }: InputProps) {
     } else if (type == "checkbox") {
       setValue(!value)
     } else if (type == "select") {
-      setValue(e.target.value)
+      setValue(e)
     } else {
       setValue(e.target.value)
     }
@@ -94,6 +95,8 @@ export default function ZxInput({ schema, _key, value, setValue }: InputProps) {
       setModified(false)
     }
   }
+
+  useValidationCallback(validate)
 
   function validate() {
     let result = schema.safeParse(value);
@@ -136,7 +139,7 @@ export default function ZxInput({ schema, _key, value, setValue }: InputProps) {
           onValueChange={onchange}
         >
           <SelectTrigger id={`id-${id}`}>
-            {value !== "" ? value : placeholder}
+            {value ? value : placeholder}
           </SelectTrigger>
           <SelectContent>
             {(schema as ZodEnum<any>).options.map((option: string) => (
