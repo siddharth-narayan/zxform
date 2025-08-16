@@ -37,13 +37,11 @@ export default function ZxInput({ schema, _key, value, setValue }: InputProps) {
     return s.charAt(0).toUpperCase() + s.slice(1)
   }
 
-  // Get options
-
-  console.log(`key: ${_key}, value: ${value}`)
   const id = useId();
   let meta = schema.meta();
   let optional = schema instanceof ZodOptional;
-
+  console.log(value)
+  value = value ? value : ""
 
   let placeholder = (meta?.placeholder as string) ?? uppercaseFirstLetter(_key);
   let title = meta?.title ?? placeholder;
@@ -73,7 +71,7 @@ export default function ZxInput({ schema, _key, value, setValue }: InputProps) {
     if (value === undefined && meta?.default !== undefined) {
       setValue(meta.default);
     }
-  }, [schema, meta, type]);
+  }, [schema, meta]);
 
   function onchange(e) {
     setModified(true)
@@ -99,6 +97,7 @@ export default function ZxInput({ schema, _key, value, setValue }: InputProps) {
   useValidationCallback(validate)
 
   function validate() {
+    console.log(`${_key}: ${value}`)
     let result = schema.safeParse(value);
 
     let element: HTMLInputElement = document.getElementById(
@@ -150,6 +149,7 @@ export default function ZxInput({ schema, _key, value, setValue }: InputProps) {
       ) : (
         <Input
           id={`id-${id}`}
+          value={value}
           type={type}
           onChange={onchange}
           onBlur={onblur}

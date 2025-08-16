@@ -37,16 +37,17 @@ export default function ZxForm({ schema, action = "", method = "GET", header, fo
       }))
     }
   }
-  
+
   function onsubmit(event) {
     if (meta?.preventDefault || meta?.callback) {
       event.preventDefault();
     }
 
     let result = schema.safeParse(data)
-    
+
+
+    sendValidateSignal()
     if (!result.success) {
-      sendValidateSignal()
       return
     }
 
@@ -57,8 +58,8 @@ export default function ZxForm({ schema, action = "", method = "GET", header, fo
 
   return (<Card className="mx-auto w-full max-w-sm">
     <CardHeader>
-      {header ? <header /> : 
-      <><CardTitle className="text-2xl">{meta?.title ?? "Form"}</CardTitle><CardDescription>{meta?.description ?? ""}</CardDescription></>
+      {header ? <header /> :
+        <><CardTitle className="text-2xl">{meta?.title ?? "Form"}</CardTitle><CardDescription>{meta?.description ?? ""}</CardDescription></>
       }
     </CardHeader>
     <CardContent>
