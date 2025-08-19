@@ -7,6 +7,7 @@ export type FormProps = {
     method?: "dialog" | "get" | "post" | "DIALOG" | "GET" | "POST" | null | undefined,
     header?: Snippet,
     footer?: Snippet,
+    extraInputs?: {index: number, component: Snippet}[]
 };
 
 export type InputProps = {
