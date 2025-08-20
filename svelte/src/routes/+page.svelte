@@ -3,6 +3,7 @@
   import ZxForm from "$lib/ZxForm.svelte";
   import ThemeSwitcher from "$lib/components/large/ThemeSwitcher.svelte";
   import { ModeWatcher } from "mode-watcher";
+  import SignatureBox from "$lib/components/large/SignatureBox.svelte";
 
   // The following example should showcase all of the following uses
   // - Custom titles, placeholders, descriptions, and error messages on inputs
@@ -49,6 +50,7 @@
           description:
             'You must agree to our <a href="#" style="text-decoration: underline;">Terms and Conditions</a>',
         }),
+      signature: z.any().meta({custom: SignatureBox}),
     })
     .meta({
       title: "Example Form", // Form title
@@ -72,7 +74,11 @@
         Visit us at <a href="#" class="underline">example.com</a> ❤️
       </p>
 
-      <a href="#" class="dark:text-neutral-400 underline text-sm mt-4 font-semibold text-stone-800 flex">Sign in instead</a>
+      <a
+        href="#"
+        class="dark:text-neutral-400 underline text-sm mt-4 font-semibold text-stone-800 flex"
+        >Sign in instead</a
+      >
     </div>
   {/snippet}
 </ZxForm>

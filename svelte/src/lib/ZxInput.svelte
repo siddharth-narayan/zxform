@@ -1,7 +1,14 @@
 <script lang="ts">
   import Asterisk from "@lucide/svelte/icons/asterisk";
   import { v4 as uuidv4 } from "uuid";
-  import { ZodBoolean, ZodEnum, ZodNumber, ZodOptional, ZodString } from "zod";
+  import {
+    ZodAny,
+    ZodBoolean,
+    ZodEnum,
+    ZodNumber,
+    ZodOptional,
+    ZodString,
+  } from "zod";
 
   import Input from "$lib/components/ui/input/input.svelte";
   import Label from "$lib/components/ui/label/label.svelte";
@@ -9,7 +16,7 @@
   import * as Select from "./components/ui/select/index.js";
 
   import { skipFirstSubscribe, uppercaseFirstLetter } from "./misc.js";
-  import { type InputProps } from "./types.js";
+  import { type CustomInputType, type InputProps } from "./types.js";
   import { validate_callback } from "./validate-store.js";
   import Textarea from "./components/ui/textarea/textarea.svelte";
 
@@ -23,6 +30,7 @@
   let placeholder = (meta?.placeholder as string) ?? title;
   let description = meta?.description;
   let optional = schema instanceof ZodOptional;
+  let Custom: CustomInputType | undefined = meta?.custom as CustomInputType | undefined
 
   let baseSchema = optional ? (schema as ZodOptional<any>).unwrap() : schema;
 
@@ -37,6 +45,8 @@
     data[key] = meta?.default ?? false;
   } else if (schema instanceof ZodEnum) {
     type = "select";
+  } else if (schema instanceof ZodAny) {
+    type = "custom";
   }
 
   if (meta?.type) {
@@ -52,11 +62,15 @@
   }
 
   function validate() {
+    if (type == "custom") {
+      return
+    }
+
     let result = schema.safeParse(data[key]);
     // console.log(result);
 
     let element: HTMLInputElement = document.getElementById(
-      `id-${id}`
+      `id-${id}`,
     ) as HTMLInputElement;
 
     if (!element) {
@@ -97,12 +111,17 @@
       </Select.Content>
     </Select.Root>
   {:else if type == "textarea"}
-    <Textarea
-      id="id-{id}"
-      {onchange}
-      {placeholder}
-      bind:value={data[key]}
-    />
+    <Textarea id="id-{id}" {onchange} {placeholder} bind:value={data[key]} />
+  {:else if type == "custom"}
+    {#if Custom}
+      <Custom
+        id="id-{id}"
+        {type}
+        {onchange}
+        {placeholder}
+        bind:value={data[key]}
+      />
+    {/if}
   {:else}
     <!-- This is the fallback case, it should be good for the majority of input types -->
     <Input

@@ -38,7 +38,6 @@
       return;
     }
 
-    console.log(meta?.callback);
     if (typeof meta?.callback === "function") {
       meta.callback(result.data);
     }

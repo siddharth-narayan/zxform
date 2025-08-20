@@ -1,5 +1,5 @@
 import { z } from "zod"
-import type { Snippet } from "svelte";
+import type { Component, Snippet } from "svelte";
 
 export type FormProps = {
     schema: z.ZodObject<any>;
@@ -10,6 +10,7 @@ export type FormProps = {
     extraInputs?: {index: number, component: Snippet}[]
 };
 
+export type CustomInputType = Component<{data: any; validate?: () => boolean}, {}, "data">
 export type InputProps = {
     input: [string, z.ZodType];
     data: any;
